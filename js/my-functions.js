@@ -255,8 +255,8 @@ const getDates = function (year, month, week, date) {
   return resDates;
 }
 
-const dateSerialize = (dates) => {
-  dates = new Date(dates);
+const dateSerialize = dates => {
+  dates = !dates ? new Date() : new Date(dates);
 
   let date        = plusZero(dates.getDate());
   let month       = plusZero(dates.getMonth() + 1);
@@ -340,38 +340,32 @@ const getStrTime = dates => {
 }
 
 const getTimeString = date => {
-  const curTime = dateSerialize(new Date());
-  let result;
-  date = dateSerialize(date)
+  const currentDates  = dateSerialize();
+  const dates         = dateSerialize(date);
 
-  const timeRange = {
-    year  : curTime.thisYear - date.thisYear,
-    month : curTime.thisMonth - date.thisMonth,
-    date  : curTime.thisDate - date.thisDate,
-    hour  : curTime.thisHour - date.thisHour,
-    minute: curTime.thisMinute - date.thisMinute,
-    second: curTime.thisSecond - date.thisSecond
-  }
+  const isLastThan5Hour = (currentDates.timestamp - dates.timestamp)
+    <= 1000 * 60 * 60 * 5;
+  const isToday         = currentDates.date == dates.date;
 
-  if ( timeRange.year == 0 && timeRange.month == 0 && timeRange.date == 0 && timeRange.hour >= 0 && timeRange.hour <= 5 ) {
-    return date.time.substring(0,5);
-  }else if ( timeRange.year == 0 && timeRange.month == 0 && timeRange.date == 0 && timeRange.hour > 5 ) {
-    return "Today";
-  }else if ( timeRange.year == 0 && timeRange.month == 0 && timeRange.date == 1 ) {
-    return "Yesterday";
-  }else if ( timeRange.year == 0 && timeRange.month == 0 && timeRange.date > 1 && timeRange.date <= 7 ) {
-    return changeDay(date.today, "fullEN");
-  }else {
-    return changeMonth(date.thisMonth, "sortEN") + ", " + date.thisDate + " " + date.thisYear;
-  }
+  let yesterday     = currentDates.today;
+  yesterday.setDate(yesterday.getDate() - 1);
+  yesterday         = dateSerialize(yesterday);
+  const isYesterday = yesterday.date == dates.date;
 
-  // else if ( timeRange.year == 0 && timeRange.month == 0 && timeRange.date > 7 ) {
-  //   return changeMonth(date.thisMonth, "fullEN");
-  // }else if ( timeRange.year == 0 && timeRange.month == 1 ) {
-  //   return "Last Month";
-  // }
+  const isLastWeek  = (currentDates.timestamp - dates.timestamp)
+    <= 1000 * 60 * 60 * 24 * 6;
+
+  const isThisMonth = currentDates.thisMonth == dates.thisMonth;
+
+  if ( isLastThan5Hour ) return dates.time.substring(0,5);
+  else if ( isToday ) return "Today";
+  else if ( isYesterday ) return "Yesterday";
+  else if ( isLastWeek ) return changeDay(dates.today, "fullEN");
+  else if ( isThisMonth ) return `${changeDay(dates.today, "fullEN")}, ${dates.thisDate}`;
+
+  return changeMonth(dates.thisMonth, "sortEN") + ", "
+    + dates.thisDate + " " + dates.thisYear;
 }
-
 
 const changeMonth = function (month, format = 'sortID') {
   let dataMonth = {
