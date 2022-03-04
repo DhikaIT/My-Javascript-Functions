@@ -36,41 +36,32 @@ const getQueryString =
       .entries()
   );
 
-const getData =
-  (array, match = {}, limit = 0, sort = false) => {
-    let l = 0;
-    
-    if ( sort ) {
-      if ( sort.type && sort.type == "alphabetically" ) {
-        array = array.sortByAlphabetically(sort.key);
-      }else {
-        array =
-          array.sort(
-            (a, b) => {
-              if ( sort.order && sort.order == "asc" ) {
-                return a[sort.key] - b[sort.key]
-              }else {
-                return b[sort.key] - a[sort.key]
-              }
-            }
-          );
-      }
+const getData = (array, match = {}, limit = 0, sort = false) => {
+  let l = 0;
+  
+  if ( sort ) {
+    if ( sort.type && sort.type == "alphabetically" )
+      array = array.sortByAlphabetically(sort.key);
+    else array = array.sort((a, b) => {
+      if ( sort.order && sort.order == "asc" )
+        return a[sort.key] - b[sort.key]
+      else return b[sort.key] - a[sort.key];
+    });
+  }
+
+  return array.filter(a => {
+    const isMatch = Object.keys(match).every(m => {
+      const matcher = new RegExp(match[m], "gi");
+      return a[m] && a[m].toString().match(matcher);
+    });
+
+    if ( isMatch && ((limit !== 0 && l < limit) || limit === 0) ) {
+      l++; return true;
     }
 
-    return array.filter(
-      a => {
-        const isMatch = Object.keys(match).every(
-          m => a[m] && a[m].toString().indexOf(match[m]) !== -1
-        );
-
-        if ( isMatch && ((limit !== 0 && l < limit) || limit === 0) ) {
-          l++; return true;
-        }
-
-        return false;
-      }
-    )
-  };
+    return false;
+  });
+};
 
 // Public Function
 
@@ -361,7 +352,7 @@ const getTimeString = date => {
   else if ( isToday ) return "Today";
   else if ( isYesterday ) return "Yesterday";
   else if ( isLastWeek ) return changeDay(dates.today, "fullEN");
-  else if ( isThisMonth ) return `${changeDay(dates.today, "fullEN")}, ${dates.thisDate}`;
+  else if ( isThisMonth ) return `${changeDay(dates.today, "sortEN")}, ${dates.thisDate}`;
 
   return changeMonth(dates.thisMonth, "sortEN") + ", "
     + dates.thisDate + " " + dates.thisYear;
