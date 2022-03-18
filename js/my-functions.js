@@ -333,6 +333,7 @@ const getStrTime = dates => {
 const getTimeString = date => {
   const currentDates  = dateSerialize();
   const dates         = dateSerialize(date);
+  const time          = dates.time.substring(0,5);
 
   const isLastThan5Hour = (currentDates.timestamp - dates.timestamp)
     <= 1000 * 60 * 60 * 5;
@@ -348,11 +349,11 @@ const getTimeString = date => {
 
   const isThisMonth = currentDates.thisMonth == dates.thisMonth;
 
-  if ( isLastThan5Hour ) return dates.time.substring(0,5);
-  else if ( isToday ) return "Today";
-  else if ( isYesterday ) return "Yesterday";
-  else if ( isLastWeek ) return changeDay(dates.today, "fullEN");
-  else if ( isThisMonth ) return `${changeDay(dates.today, "sortEN")}, ${dates.thisDate}`;
+  if ( isLastThan5Hour ) return time;
+  else if ( isToday ) return `Today`;
+  else if ( isYesterday ) return `Yesterday`;
+  else if ( isLastWeek ) return `${changeDay(dates.today, "fullEN")}, ${dates.thisDate}`;
+  // else if ( isThisMonth ) return `${changeDay(dates.today, "sortEN")}, ${dates.thisDate}`;
 
   return changeMonth(dates.thisMonth, "sortEN") + ", "
     + dates.thisDate + " " + dates.thisYear;
