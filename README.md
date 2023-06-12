@@ -1,2 +1,2 @@
-# My-Javascript-Functions
+# Javascript Utility Functions
 Homemade javascript function set
